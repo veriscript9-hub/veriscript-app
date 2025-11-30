@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VeriScript - The New Standard in Digital Prescribing</title>
+  <meta name="description" content="VeriScript is a specialized, mobile-first Digital Prescription Layer designed for Indian healthcare. Compliant, secure, and fast.">
+  <link rel="stylesheet" href="/css/main.css">
+  <style>
+    .hero {
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+      color: white;
+      padding: 4rem 0;
+      text-align: center;
+    }
+    
+    .hero-title {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: white;
+    }
+    
+    .hero-subtitle {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+    }
+    
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin: 3rem 0;
+    }
+    
+    .feature-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+    }
+    
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    
+    .feature-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stats-section {
+      background: var(--gray-100);
+      padding: 3rem 0;
+      text-align: center;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    
+    .stat-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+    }
+    
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+    
+    .stat-label {
+      color: var(--gray-600);
+      margin-top: 0.5rem;
+    }
+    
+    .cta-section {
+      background: var(--primary-color);
+      color: white;
+      padding: 4rem 0;
+      text-align: center;
+    }
+    
+    .footer {
+      background: var(--gray-900);
+      color: white;
+      padding: 2rem 0;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <span class="logo-icon">📋</span>
+          VeriScript
+        </div>
+        <nav class="nav">
+          <a href="#features" class="nav-link">Features</a>
+          <a href="#how-it-works" class="nav-link">How It Works</a>
+          <a href="#pricing" class="nav-link">Pricing</a>
+          <a href="/doctor/login.html" class="btn btn-outline btn-sm">Doctor Login</a>
+          <a href="/chemist/login.html" class="btn btn-primary btn-sm">Chemist Login</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <h1 class="hero-title">VeriScript</h1>
+      <p class="hero-subtitle">The new standard in digital prescribing</p>
+      <p style="max-width: 800px; margin: 0 auto 2rem; font-size: 1.125rem;">
+        A specialized, mobile-first Digital Prescription Layer designed to solve regulatory non-compliance 
+        and workflow friction in Indian private healthcare.
+      </p>
+      <div class="hero-cta">
+        <a href="/doctor/register.html" class="btn btn-secondary btn-lg">Get Started - Doctors</a>
+        <a href="/chemist/register.html" class="btn btn-outline btn-lg" style="background: white; color: var(--primary-color);">Register - Chemists</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="container" style="padding: 4rem 0;">
+    <h2 class="text-center">Why VeriScript?</h2>
+    <p class="text-center" style="max-width: 600px; margin: 0 auto 2rem; color: var(--gray-600);">
+      The only solution that offers instant adoption combined with an immutable digital audit trail
+    </p>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3 class="feature-title">Lightning Fast</h3>
+        <p>Create prescriptions in under 15 seconds. Save 3-5 minutes per patient with smart presets.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3 class="feature-title">Fully Compliant</h3>
+        <p>IT Act 2000, Drugs & Cosmetics Act ready. ABDM integration prepared. Minimize doctor liability.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3 class="feature-title">Mobile First</h3>
+        <p>Works seamlessly on all devices. No app installation required. Access anywhere, anytime.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3 class="feature-title">Secure & Private</h3>
+        <p>End-to-end encryption with QR/Token verification. DISHA/DPDP compliant data protection.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3 class="feature-title">Complete Audit Trail</h3>
+        <p>Immutable transaction logs. Every prescription is verified, auditable, and legally compliant.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">✓</div>
+        <h3 class="feature-title">Zero Rejection</h3>
+        <p>Less than 2% rejection rate. Eliminates pharmacist rejection due to illegibility or fraud.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="stats-section">
+    <div class="container">
+      <h2>VeriScript by the Numbers</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">&lt;15s</div>
+          <div class="stat-label">Prescription Creation Time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">&lt;2%</div>
+          <div class="stat-label">Rejection Rate</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">100%</div>
+          <div class="stat-label">Compliance Ready</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">₹499</div>
+          <div class="stat-label">Per Month (Pro Plan)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how-it-works" class="container" style="padding: 4rem 0;">
+    <h2 class="text-center">How It Works</h2>
+    <div class="grid-3" style="margin-top: 2rem;">
+      <div class="card">
+        <div style="font-size: 2rem; margin-bottom: 1rem;">1️⃣</div>
+        <h3>Doctor Creates Prescription</h3>
+        <p>Use smart presets to create prescriptions in seconds. Add patient details and medicines with one-tap templates.</p>
+      </div>
+      
+      <div class="card">
+        <div style="font-size: 2rem; margin-bottom: 1rem;">2️⃣</div>
+        <h3>Patient Receives Token</h3>
+        <p>Patient gets a secure QR code and 6-digit verification code via SMS/WhatsApp. No PHI in message body.</p>
+      </div>
+      
+      <div class="card">
+        <div style="font-size: 2rem; margin-bottom: 1rem;">3️⃣</div>
+        <h3>Chemist Verifies & Dispenses</h3>
+        <p>Chemist scans QR, verifies code and license, then marks as dispensed. Complete audit trail created.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing" class="container" style="padding: 4rem 0;">
+    <h2 class="text-center">Simple, Transparent Pricing</h2>
+    <div class="grid-2" style="margin-top: 2rem; max-width: 800px; margin-left: auto; margin-right: auto;">
+      <div class="card" style="border: 2px solid var(--gray-200);">
+        <h3>Free Plan</h3>
+        <div style="font-size: 2.5rem; font-weight: 700; margin: 1rem 0;">₹0</div>
+        <p style="color: var(--gray-600);">Perfect for trying out VeriScript</p>
+        <ul style="list-style: none; padding: 0; margin: 1.5rem 0;">
+          <li style="padding: 0.5rem 0;">✓ 10 prescriptions/month</li>
+          <li style="padding: 0.5rem 0;">✓ Basic templates</li>
+          <li style="padding: 0.5rem 0;">✓ SMS delivery</li>
+          <li style="padding: 0.5rem 0;">✓ 30-day validity</li>
+        </ul>
+        <a href="/doctor/register.html" class="btn btn-outline btn-block">Start Free</a>
+      </div>
+      
+      <div class="card" style="border: 3px solid var(--primary-color); position: relative;">
+        <div style="position: absolute; top: -12px; right: 20px; background: var(--primary-color); color: white; padding: 0.25rem 1rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600;">POPULAR</div>
+        <h3>Pro Plan</h3>
+        <div style="font-size: 2.5rem; font-weight: 700; margin: 1rem 0;">₹499<span style="font-size: 1rem; color: var(--gray-600);">/month</span></div>
+        <p style="color: var(--gray-600);">For professional practices</p>
+        <ul style="list-style: none; padding: 0; margin: 1.5rem 0;">
+          <li style="padding: 0.5rem 0;">✓ Unlimited prescriptions</li>
+          <li style="padding: 0.5rem 0;">✓ Smart presets & templates</li>
+          <li style="padding: 0.5rem 0;">✓ SMS + WhatsApp delivery</li>
+          <li style="padding: 0.5rem 0;">✓ Analytics dashboard</li>
+          <li style="padding: 0.5rem 0;">✓ Priority support</li>
+          <li style="padding: 0.5rem 0;">✓ ABDM integration</li>
+        </ul>
+        <a href="/doctor/register.html" class="btn btn-primary btn-block">Get Started</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <h2 style="color: white;">Ready to Transform Your Practice?</h2>
+      <p style="font-size: 1.25rem; margin-bottom: 2rem;">Join thousands of doctors already using VeriScript</p>
+      <a href="/doctor/register.html" class="btn btn-secondary btn-lg">Start Free Trial</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2025 VeriScript. All rights reserved.</p>
+      <p style="margin-top: 0.5rem; font-size: 0.875rem; opacity: 0.8;">
+        <a href="#" style="color: white; margin: 0 1rem;">Privacy Policy</a>
+        <a href="#" style="color: white; margin: 0 1rem;">Terms of Service</a>
+        <a href="#" style="color: white; margin: 0 1rem;">Contact</a>
+      </p>
+    </div>
+  </footer>
+</body>
+</html>
