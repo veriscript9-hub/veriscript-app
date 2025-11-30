@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Prescription - VeriScript</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <style>
+    .patient-container {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      padding: 2rem 1rem;
+    }
+    
+    .prescription-card {
+      background: white;
+      border-radius: var(--radius-xl);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+      max-width: 700px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    
+    .card-header {
+      background: var(--primary-color);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+    
+    .card-body {
+      padding: 2rem;
+    }
+    
+    .info-section {
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    
+    .info-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    
+    .info-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .info-item {
+      margin-bottom: 1rem;
+    }
+    
+    .info-label {
+      font-size: 0.875rem;
+      color: var(--gray-600);
+      margin-bottom: 0.25rem;
+    }
+    
+    .info-value {
+      font-weight: 600;
+      color: var(--gray-900);
+    }
+    
+    .medicine-item {
+      background: var(--gray-50);
+      padding: 1rem;
+      border-radius: var(--radius-md);
+      margin-bottom: 0.75rem;
+      border-left: 4px solid var(--primary-color);
+    }
+    
+    .medicine-name {
+      font-weight: 700;
+      font-size: 1.125rem;
+      margin-bottom: 0.5rem;
+      color: var(--gray-900);
+    }
+    
+    .medicine-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--gray-600);
+    }
+    
+    .qr-section {
+      text-align: center;
+      padding: 2rem;
+      background: var(--gray-50);
+      border-radius: var(--radius-lg);
+      margin-top: 2rem;
+    }
+    
+    .verification-code {
+      font-size: 2rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--primary-color);
+      letter-spacing: 0.5rem;
+      margin: 1rem 0;
+    }
+    
+    .status-badge-large {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      font-size: 1rem;
+      margin: 1rem 0;
+    }
+    
+    .status-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .status-dispensed {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .status-expired {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .warning-box {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 1rem;
+      border-radius: var(--radius-md);
+      margin-top: 2rem;
+    }
+    
+    .error-container {
+      text-align: center;
+      padding: 3rem 2rem;
+    }
+    
+    .error-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="patient-container">
+    <div class="prescription-card">
+      <div class="card-header">
+        <div style="font-size: 3rem; margin-bottom: 0.5rem;">📋</div>
+        <h1 style="margin: 0; font-size: 1.75rem;">VeriScript Prescription</h1>
+        <p style="margin: 0.5rem 0 0; opacity: 0.9;">Digital Prescription System</p>
+      </div>
+      
+      <div class="card-body" id="prescriptionContent">
+        <div style="text-align: center; padding: 3rem 2rem;">
+          <div class="spinner" style="margin: 0 auto 1rem;"></div>
+          <p style="color: var(--gray-600);">Loading prescription...</p>
+        </div>
+      </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 2rem;">
+      <a href="/" style="color: white; font-weight: 600;">← Back to Home</a>
+    </div>
+  </div>
+  
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-functions-compat.js"></script>
+  
+  <!-- App Scripts -->
+  <script src="/js/config.js"></script>
+  <script src="/js/utils.js"></script>
+  
+  <script>
+    // Get URL parameters
+    const params = utils.getUrlParams();
+    const prescriptionId = params.id;
+    const verificationCode = params.code;
+    
+    // Load prescription on page load
+    window.addEventListener('DOMContentLoaded', async () => {
+      if (!prescriptionId || !verificationCode) {
+        showError('Invalid prescription link', 'The link you followed is invalid or incomplete.');
+        return;
+      }
+      
+      await loadPrescription();
+    });
+    
+    // Load prescription
+    async function loadPrescription() {
+      try {
+        const docRef = await db.collection('prescriptions').doc(prescriptionId).get();
+        
+        if (!docRef.exists) {
+          showError('Prescription not found', 'This prescription does not exist or has been deleted.');
+          return;
+        }
+        
+        const prescription = docRef.data();
+        
+        // Verify code matches
+        if (prescription.verificationCode !== verificationCode) {
+          showError('Invalid verification code', 'The verification code does not match. Please check your SMS/WhatsApp message.');
+          return;
+        }
+        
+        // Check if expired
+        const isExpired = utils.isExpired(prescription.createdAt);
+        
+        // Display prescription
+        displayPrescription(prescription, isExpired);
+        
+      } catch (error) {
+        console.error('Error loading prescription:', error);
+        showError('Error loading prescription', 'An error occurred while loading your prescription. Please try again.');
+      }
+    }
+    
+    // Display prescription
+    function displayPrescription(prescription, isExpired) {
+      // Build medicines HTML
+      let medicinesHtml = '';
+      prescription.medicines.forEach((med, index) => {
+        medicinesHtml += `
+          <div class="medicine-item">
+            <div class="medicine-name">${index + 1}. ${med.name}</div>
+            <div class="medicine-details">
+              <div><strong>Dosage:</strong> ${med.dosage}</div>
+              <div><strong>Frequency:</strong> ${med.frequency}</div>
+              <div><strong>Duration:</strong> ${med.duration}</div>
+            </div>
+          </div>
+        `;
+      });
+      
+      // Determine status
+      let statusHtml = '';
+      if (prescription.status === 'dispensed') {
+        statusHtml = '<div class="status-badge-large status-dispensed">✓ Dispensed</div>';
+      } else if (isExpired) {
+        statusHtml = '<div class="status-badge-large status-expired">⚠ Expired</div>';
+      } else {
+        statusHtml = '<div class="status-badge-large status-pending">⏳ Pending</div>';
+      }
+      
+      // Build HTML
+      const html = `
+        <div style="text-align: center; margin-bottom: 2rem;">
+          ${statusHtml}
+        </div>
+        
+        <!-- Doctor Information -->
+        <div class="info-section">
+          <h3 style="margin-bottom: 1rem;">👨‍⚕️ Doctor Information</h3>
+          <div class="info-row">
+            <div class="info-item">
+              <div class="info-label">Doctor Name</div>
+              <div class="info-value">${prescription.doctorName}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Registration No.</div>
+              <div class="info-value">${prescription.doctorRegistration}</div>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Clinic/Hospital</div>
+            <div class="info-value">${prescription.clinicName}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Address</div>
+            <div class="info-value">${prescription.clinicAddress}</div>
+          </div>
+        </div>
+        
+        <!-- Patient Information -->
+        <div class="info-section">
+          <h3 style="margin-bottom: 1rem;">👤 Patient Information</h3>
+          <div class="info-row">
+            <div class="info-item">
+              <div class="info-label">Patient Name</div>
+              <div class="info-value">${prescription.patientName}</div>
+            </div>
+            ${prescription.patientAge ? `
+            <div class="info-item">
+              <div class="info-label">Age</div>
+              <div class="info-value">${prescription.patientAge} years</div>
+            </div>
+            ` : ''}
+          </div>
+          ${prescription.diagnosis ? `
+          <div class="info-item">
+            <div class="info-label">Diagnosis</div>
+            <div class="info-value">${prescription.diagnosis}</div>
+          </div>
+          ` : ''}
+          <div class="info-item">
+            <div class="info-label">Prescription Date</div>
+            <div class="info-value">${utils.formatDate(prescription.createdAt)}</div>
+          </div>
+        </div>
+        
+        <!-- Medicines -->
+        <div class="info-section">
+          <h3 style="margin-bottom: 1rem;">💊 Medicines Prescribed</h3>
+          ${medicinesHtml}
+        </div>
+        
+        ${prescription.notes ? `
+        <div class="info-section">
+          <h3 style="margin-bottom: 1rem;">📝 Additional Instructions</h3>
+          <div style="background: var(--gray-50); padding: 1rem; border-radius: var(--radius-md);">
+            ${prescription.notes}
+          </div>
+        </div>
+        ` : ''}
+        
+        ${prescription.status === 'dispensed' ? `
+        <div class="info-section">
+          <h3 style="margin-bottom: 1rem;">✅ Dispensing Information</h3>
+          <div class="info-row">
+            <div class="info-item">
+              <div class="info-label">Dispensed At</div>
+              <div class="info-value">${utils.formatDate(prescription.dispensedAt)}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Pharmacy</div>
+              <div class="info-value">${prescription.chemistName}</div>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">License Number</div>
+            <div class="info-value">${prescription.chemistLicenseId}</div>
+          </div>
+        </div>
+        ` : ''}
+        
+        ${prescription.status === 'pending' && !isExpired ? `
+        <!-- QR Code and Verification -->
+        <div class="qr-section">
+          <h4 style="margin-bottom: 1rem;">Show this to your pharmacist</h4>
+          ${prescription.qrCodeUrl ? `
+          <img src="${prescription.qrCodeUrl}" alt="QR Code" style="max-width: 250px; margin: 1rem auto;">
+          ` : ''}
+          <div style="margin-top: 1.5rem;">
+            <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">
+              Verification Code
+            </div>
+            <div class="verification-code">${prescription.verificationCode}</div>
+          </div>
+          <div style="margin-top: 1rem; font-size: 0.875rem; color: var(--gray-600);">
+            Valid until: ${utils.formatDate(utils.calculateExpiry(prescription.createdAt))}
+          </div>
+        </div>
+        
+        <div class="warning-box">
+          <strong>⚠️ Important:</strong> Do not share this code with anyone except your pharmacist. 
+          This prescription is valid for ${APP_CONFIG.prescriptionExpiryDays} days from the date of issue.
+        </div>
+        ` : ''}
+        
+        ${isExpired && prescription.status !== 'dispensed' ? `
+        <div class="warning-box" style="background: #fee2e2; border-color: #ef4444;">
+          <strong>⚠️ Prescription Expired:</strong> This prescription has expired. 
+          Please contact your doctor for a new prescription.
+        </div>
+        ` : ''}
+      `;
+      
+      document.getElementById('prescriptionContent').innerHTML = html;
+    }
+    
+    // Show error
+    function showError(title, message) {
+      const html = `
+        <div class="error-container">
+          <div class="error-icon">❌</div>
+          <h2 style="color: var(--error-color); margin-bottom: 1rem;">${title}</h2>
+          <p style="color: var(--gray-600); margin-bottom: 2rem;">${message}</p>
+          <a href="/" class="btn btn-primary">Go to Home</a>
+        </div>
+      `;
+      
+      document.getElementById('prescriptionContent').innerHTML = html;
+    }
+  </script>
+</body>
+</html>
