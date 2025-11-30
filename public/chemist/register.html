@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chemist Registration - VeriScript</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <style>
+    .register-container {
+      min-height: 100vh;
+      padding: 2rem 0;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+    
+    .register-card {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="register-container">
+    <div class="container">
+      <div class="register-card">
+        <div style="text-align: center; margin-bottom: 2rem;">
+          <div style="font-size: 3rem; margin-bottom: 0.5rem;">💊</div>
+          <h1 style="font-size: 1.75rem; margin-bottom: 0.5rem;">Chemist Registration</h1>
+          <p style="color: var(--gray-600);">Join VeriScript's pharmacy network</p>
+        </div>
+        
+        <form id="registerForm">
+          <div class="form-group">
+            <label class="form-label required" for="pharmacyName">Pharmacy Name</label>
+            <input 
+              type="text" 
+              id="pharmacyName" 
+              class="form-input" 
+              placeholder="City Medical Store"
+              required
+            >
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label required" for="ownerName">Owner/Pharmacist Name</label>
+            <input 
+              type="text" 
+              id="ownerName" 
+              class="form-input" 
+              placeholder="Full Name"
+              required
+            >
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label required" for="licenseNumber">Pharmacy License Number</label>
+            <input 
+              type="text" 
+              id="licenseNumber" 
+              class="form-input" 
+              placeholder="State Pharmacy Council License"
+              required
+            >
+            <div class="form-help">Your valid pharmacy license number</div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label required" for="phone">Phone Number</label>
+            <input 
+              type="tel" 
+              id="phone" 
+              class="form-input" 
+              placeholder="9876543210"
+              pattern="[6-9][0-9]{9}"
+              required
+            >
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label required" for="address">Pharmacy Address</label>
+            <textarea 
+              id="address" 
+              class="form-textarea" 
+              placeholder="Complete address with city and pincode"
+              required
+            ></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label required" for="email">Email Address</label>
+            <input 
+              type="email" 
+              id="email" 
+              class="form-input" 
+              placeholder="pharmacy@example.com"
+              required
+            >
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label required" for="password">Password</label>
+            <input 
+              type="password" 
+              id="password" 
+              class="form-input" 
+              placeholder="Minimum 8 characters"
+              minlength="8"
+              required
+            >
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label required" for="confirmPassword">Confirm Password</label>
+            <input 
+              type="password" 
+              id="confirmPassword" 
+              class="form-input" 
+              placeholder="Re-enter password"
+              minlength="8"
+              required
+            >
+          </div>
+          
+          <div class="form-group">
+            <label style="display: flex; align-items: start; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="terms" required style="margin-top: 0.25rem;">
+              <span style="font-size: 0.875rem;">
+                I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. 
+                I confirm that I am a licensed pharmacist.
+              </span>
+            </label>
+          </div>
+          
+          <button type="submit" class="btn btn-secondary btn-block btn-lg">
+            Create Account
+          </button>
+        </form>
+        
+        <div style="text-align: center; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--gray-200);">
+          <p style="color: var(--gray-600);">
+            Already have an account? 
+            <a href="/chemist/login.html" style="font-weight: 600;">Sign in here</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Loading Spinner -->
+  <div id="loader" class="loader">
+    <div class="loader-content">
+      <div class="spinner"></div>
+      <div class="loader-text">Creating your account...</div>
+    </div>
+  </div>
+  
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  
+  <!-- App Scripts -->
+  <script src="/js/config.js"></script>
+  <script src="/js/utils.js"></script>
+  
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      
+      if (password !== confirmPassword) {
+        utils.showToast('Passwords do not match', 'error');
+        return;
+      }
+      
+      utils.showLoading('Creating your account...');
+      
+      try {
+        const email = document.getElementById('email').value;
+        
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        
+        await db.collection('users').doc(user.uid).set({
+          role: 'chemist',
+          email: email,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        await db.collection('chemists').doc(user.uid).set({
+          pharmacyName: document.getElementById('pharmacyName').value,
+          ownerName: document.getElementById('ownerName').value,
+          licenseNumber: document.getElementById('licenseNumber').value,
+          phone: document.getElementById('phone').value,
+          address: document.getElementById('address').value,
+          email: email,
+          userId: user.uid,
+          verificationStatus: 'pending',
+          dispensedCount: 0,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        utils.showToast('Account created successfully!', 'success');
+        
+        setTimeout(() => {
+          window.location.href = '/chemist/dashboard.html';
+        }, 1500);
+        
+      } catch (error) {
+        console.error('Registration error:', error);
+        utils.hideLoading();
+        
+        let errorMessage = 'Registration failed. Please try again.';
+        
+        if (error.code === 'auth/email-already-in-use') {
+          errorMessage = 'This email is already registered.';
+        } else if (error.code === 'auth/invalid-email') {
+          errorMessage = 'Invalid email address.';
+        } else if (error.code === 'auth/weak-password') {
+          errorMessage = 'Password is too weak.';
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        utils.showToast(errorMessage, 'error');
+      }
+    });
+  </script>
+</body>
+</html>
