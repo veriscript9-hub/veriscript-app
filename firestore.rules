@@ -1,0 +1,92 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isDoctor() {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'doctor';
+    }
+    
+    function isChemist() {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'chemist';
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      allow create: if isAuthenticated();
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Doctors collection
+    match /doctors/{doctorId} {
+      allow read: if isAuthenticated();
+      allow create: if isDoctor() || isAdmin();
+      allow update: if isOwner(doctorId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Chemists collection
+    match /chemists/{chemistId} {
+      allow read: if isAuthenticated();
+      allow create: if isChemist() || isAdmin();
+      allow update: if isOwner(chemistId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Prescriptions collection - CRITICAL SECURITY
+    match /prescriptions/{prescriptionId} {
+      // Doctors can create and read their own prescriptions
+      allow create: if isDoctor() && request.resource.data.doctorId == request.auth.uid;
+      allow read: if isAuthenticated() && 
+                     (resource.data.doctorId == request.auth.uid || 
+                      isChemist() || 
+                      isAdmin());
+      
+      // Only chemists can update dispensed status, and only if they didn't create it
+      allow update: if isChemist() && 
+                       resource.data.doctorId != request.auth.uid &&
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['dispensedAt', 'dispensedBy', 'chemistLicenseId', 'status']);
+      
+      // Only admins can delete
+      allow delete: if isAdmin();
+    }
+    
+    // Audit logs - write only, read for admins
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if false; // Immutable
+    }
+    
+    // Analytics - aggregated data
+    match /analytics/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Only Cloud Functions can write
+    }
+    
+    // Notifications
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+  }
+}
