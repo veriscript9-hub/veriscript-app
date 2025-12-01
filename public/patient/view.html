@@ -5,11 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>View Prescription - VeriScript</title>
   <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/ads.css">
   <style>
     .patient-container {
       min-height: 100vh;
       background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
       padding: 2rem 1rem;
+      padding-bottom: 80px; /* Space for ad banner */
     }
     
     .prescription-card {
@@ -179,6 +181,7 @@
   <!-- App Scripts -->
   <script src="/js/config.js"></script>
   <script src="/js/utils.js"></script>
+  <script src="/js/ads.js"></script>
   
   <script>
     // Get URL parameters
@@ -194,6 +197,11 @@
       }
       
       await loadPrescription();
+      
+      // Initialize ads for patient portal (no user ID needed)
+      if (adsManager) {
+        await adsManager.init('patient', null);
+      }
     });
     
     // Load prescription
