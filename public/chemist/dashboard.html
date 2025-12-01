@@ -5,10 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chemist Dashboard - VeriScript</title>
   <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/ads.css">
   <style>
     .dashboard-container {
       min-height: 100vh;
       background: var(--gray-50);
+      padding-bottom: 60px; /* Space for ad banner */
     }
     
     .top-bar {
@@ -243,7 +245,21 @@
   <!-- App Scripts -->
   <script src="/js/config.js"></script>
   <script src="/js/utils.js"></script>
+  <script src="/js/ads.js"></script>
   
   <script src="/chemist/dashboard.js"></script>
+  
+  <script>
+    // Initialize ads for chemist portal
+    window.addEventListener('DOMContentLoaded', async () => {
+      // Wait for auth to complete
+      const user = await utils.checkAuth('/chemist/login.html');
+      
+      // Initialize ads
+      if (adsManager) {
+        await adsManager.init('chemist', user.uid);
+      }
+    });
+  </script>
 </body>
 </html>
