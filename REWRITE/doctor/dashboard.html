@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor Dashboard - VeriScript</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/ads.css">
+  
+  <style>
+    body {
+      background: #f8fafc;
+    }
+    
+    /* Dashboard Layout */
+    .dashboard {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      color: white;
+      padding: 2rem 0;
+      position: fixed;
+      width: 280px;
+      height: 100vh;
+      overflow-y: auto;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+      z-index: 100;
+    }
+    
+    .sidebar-header {
+      padding: 0 2rem 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: white;
+      text-decoration: none;
+      margin-bottom: 1.5rem;
+    }
+    
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .sidebar-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    
+    .sidebar-user-info h4 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    
+    .sidebar-user-info p {
+      margin: 0;
+      font-size: 0.875rem;
+      opacity: 0.7;
+    }
+    
+    .sidebar-nav {
+      padding: 2rem 0;
+    }
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.875rem 2rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .nav-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: #667eea;
+      transform: scaleY(0);
+      transition: transform 0.3s ease;
+    }
+    
+    .nav-item:hover,
+    .nav-item.active {
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+    }
+    
+    .nav-item.active::before {
+      transform: scaleY(1);
+    }
+    
+    .nav-icon {
+      font-size: 1.25rem;
+    }
+    
+    .sidebar-footer {
+      padding: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Main Content */
+    .main-content {
+      margin-left: 280px;
+      padding: 2rem;
+    }
+    
+    /* Top Bar */
+    .top-bar {
+      background: white;
+      padding: 1.5rem 2rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .top-bar-left h1 {
+      margin: 0 0 0.5rem;
+      font-size: 1.75rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .top-bar-left p {
+      margin: 0;
+      color: #64748b;
+    }
+    
+    .top-bar-right {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    
+    .stat-icon.primary {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    }
+    
+    .stat-icon.success {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+    }
+    
+    .stat-icon.warning {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%);
+    }
+    
+    .stat-icon.info {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+    }
+    
+    .stat-label {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-change {
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    
+    .stat-change.positive {
+      color: #10b981;
+    }
+    
+    .stat-change.negative {
+      color: #ef4444;
+    }
+    
+    /* Quick Actions */
+    .quick-actions {
+      background: white;
+      padding: 2rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      margin-bottom: 2rem;
+    }
+    
+    .quick-actions h2 {
+      margin: 0 0 1.5rem;
+      font-size: 1.25rem;
+    }
+    
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    
+    .action-card {
+      padding: 1.5rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+    
+    .action-card:hover {
+      border-color: #667eea;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+      transform: translateY(-3px);
+    }
+    
+    .action-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .action-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    
+    .action-desc {
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    
+    /* Recent Prescriptions */
+    .recent-section {
+      background: white;
+      padding: 2rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .section-header h2 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+    
+    .prescription-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .prescription-item {
+      padding: 1.5rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .prescription-item:hover {
+      border-color: #667eea;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.02) 0%, rgba(118, 75, 162, 0.02) 100%);
+      transform: translateX(5px);
+    }
+    
+    .prescription-info {
+      flex: 1;
+    }
+    
+    .prescription-patient {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    
+    .prescription-meta {
+      font-size: 0.875rem;
+      color: #64748b;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    .prescription-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 2rem;
+    }
+    
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+    
+    .empty-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .empty-desc {
+      color: #64748b;
+      margin-bottom: 1.5rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+      
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      
+      .sidebar.active {
+        transform: translateX(0);
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .main-content {
+        padding: 1rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <a href="/" class="sidebar-logo">
+          <span>📋</span>
+          <span>VeriScript</span>
+        </a>
+        
+        <div class="sidebar-user">
+          <div class="sidebar-avatar" id="userAvatar">D</div>
+          <div class="sidebar-user-info">
+            <h4 id="userName">Loading...</h4>
+            <p id="userRole">Doctor</p>
+          </div>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a href="/doctor/dashboard.html" class="nav-item active">
+          <span class="nav-icon">📊</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="/doctor/create-prescription.html" class="nav-item">
+          <span class="nav-icon">➕</span>
+          <span>New Prescription</span>
+        </a>
+        <a href="/doctor/prescriptions.html" class="nav-item">
+          <span class="nav-icon">📋</span>
+          <span>All Prescriptions</span>
+        </a>
+        <a href="/doctor/patients.html" class="nav-item">
+          <span class="nav-icon">👥</span>
+          <span>Patients</span>
+        </a>
+        <a href="/doctor/analytics.html" class="nav-item">
+          <span class="nav-icon">📈</span>
+          <span>Analytics</span>
+        </a>
+        <a href="/doctor/profile.html" class="nav-item">
+          <span class="nav-icon">⚙️</span>
+          <span>Settings</span>
+        </a>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <button class="btn btn-outline btn-block" onclick="utils.logout()" style="border-color: rgba(255,255,255,0.3); color: white;">
+          <span>🚪</span>
+          <span>Logout</span>
+        </button>
+      </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <div class="top-bar animate-fadeInDown">
+        <div class="top-bar-left">
+          <h1>Welcome back, <span id="welcomeName">Doctor</span>! 👋</h1>
+          <p id="currentDate">Loading...</p>
+        </div>
+        
+        <div class="top-bar-right">
+          <button class="btn btn-outline" onclick="window.location.reload()">
+            🔄 Refresh
+          </button>
+          <button class="btn btn-primary" onclick="window.location.href='/doctor/create-prescription.html'">
+            ➕ New Prescription
+          </button>
+        </div>
+      </div>
+      
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card animate-fadeInUp">
+          <div class="stat-icon primary">📋</div>
+          <div class="stat-label">Total Prescriptions</div>
+          <div class="stat-value" id="totalPrescriptions">0</div>
+          <div class="stat-change positive">
+            <span>↑</span>
+            <span id="totalChange">0%</span>
+            <span>from last month</span>
+          </div>
+        </div>
+        
+        <div class="stat-card animate-fadeInUp delay-100">
+          <div class="stat-icon success">✅</div>
+          <div class="stat-label">Today's Prescriptions</div>
+          <div class="stat-value" id="todayPrescriptions">0</div>
+          <div class="stat-change positive">
+            <span>↑</span>
+            <span id="todayChange">0</span>
+            <span>new today</span>
+          </div>
+        </div>
+        
+        <div class="stat-card animate-fadeInUp delay-200">
+          <div class="stat-icon warning">👥</div>
+          <div class="stat-label">Total Patients</div>
+          <div class="stat-value" id="totalPatients">0</div>
+          <div class="stat-change positive">
+            <span>↑</span>
+            <span id="patientsChange">0</span>
+            <span>this month</span>
+          </div>
+        </div>
+        
+        <div class="stat-card animate-fadeInUp delay-300">
+          <div class="stat-icon info">⏱️</div>
+          <div class="stat-label">Pending Verification</div>
+          <div class="stat-value" id="pendingPrescriptions">0</div>
+          <div class="stat-change">
+            <span>Awaiting dispensing</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Quick Actions -->
+      <div class="quick-actions animate-fadeInUp delay-400">
+        <h2>Quick Actions</h2>
+        <div class="actions-grid">
+          <a href="/doctor/create-prescription.html" class="action-card hover-lift">
+            <div class="action-icon">📝</div>
+            <div class="action-title">Create Prescription</div>
+            <div class="action-desc">Write a new prescription</div>
+          </a>
+          
+          <a href="/doctor/prescriptions.html" class="action-card hover-lift">
+            <div class="action-icon">📋</div>
+            <div class="action-title">View All</div>
+            <div class="action-desc">See all prescriptions</div>
+          </a>
+          
+          <a href="/doctor/patients.html" class="action-card hover-lift">
+            <div class="action-icon">👥</div>
+            <div class="action-title">Manage Patients</div>
+            <div class="action-desc">View patient records</div>
+          </a>
+          
+          <a href="/doctor/analytics.html" class="action-card hover-lift">
+            <div class="action-icon">📊</div>
+            <div class="action-title">Analytics</div>
+            <div class="action-desc">View insights</div>
+          </a>
+        </div>
+      </div>
+      
+      <!-- Recent Prescriptions -->
+      <div class="recent-section animate-fadeInUp delay-500">
+        <div class="section-header">
+          <h2>Recent Prescriptions</h2>
+          <a href="/doctor/prescriptions.html" class="btn btn-outline btn-sm">View All →</a>
+        </div>
+        
+        <div class="prescription-list" id="recentPrescriptions">
+          <!-- Loading state -->
+          <div class="empty-state">
+            <div class="empty-icon">⏳</div>
+            <div class="empty-title">Loading prescriptions...</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  
+  <!-- App Scripts -->
+  <script src="../js/config.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/ads.js"></script>
+  
+  <script>
+    // Initialize dashboard
+    let currentUser = null;
+    
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        // Check authentication
+        currentUser = await utils.checkAuth('/doctor/login.html');
+        
+        // Load user data
+        await loadUserData();
+        
+        // Load dashboard stats
+        await loadDashboardStats();
+        
+        // Load recent prescriptions
+        await loadRecentPrescriptions();
+        
+        // Initialize ads
+        if (adsManager) {
+          await adsManager.init('doctor', currentUser.uid);
+        }
+        
+        // Update current date
+        updateCurrentDate();
+        
+      } catch (error) {
+        console.error('Dashboard error:', error);
+        utils.showToast('Error loading dashboard', 'error');
+      }
+    });
+    
+    // Load user data
+    async function loadUserData() {
+      try {
+        const userDoc = await utils.getDoc('users', currentUser.uid);
+        
+        if (userDoc) {
+          document.getElementById('userName').textContent = userDoc.name || 'Doctor';
+          document.getElementById('welcomeName').textContent = userDoc.name?.split(' ')[0] || 'Doctor';
+          document.getElementById('userRole').textContent = utils.capitalize(userDoc.role || 'doctor');
+          
+          // Set avatar initial
+          const initial = userDoc.name?.charAt(0).toUpperCase() || 'D';
+          document.getElementById('userAvatar').textContent = initial;
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      }
+    }
+    
+    // Load dashboard stats
+    async function loadDashboardStats() {
+      try {
+        // Get all prescriptions for this doctor
+        const prescriptions = await utils.getDocs('prescriptions', {
+          where: [['doctorId', '==', currentUser.uid]],
+          orderBy: ['createdAt', 'desc']
+        });
+        
+        // Calculate stats
+        const total = prescriptions.length;
+        const today = prescriptions.filter(p => {
+          const createdAt = p.createdAt.toDate();
+          const todayStart = new Date();
+          todayStart.setHours(0, 0, 0, 0);
+          return createdAt >= todayStart;
+        }).length;
+        
+        const pending = prescriptions.filter(p => p.status === 'pending').length;
+        
+        // Get unique patients
+        const uniquePatients = new Set(prescriptions.map(p => p.patientName.toLowerCase()));
+        const totalPatients = uniquePatients.size;
+        
+        // Update UI
+        document.getElementById('totalPrescriptions').textContent = utils.formatNumber(total);
+        document.getElementById('todayPrescriptions').textContent = utils.formatNumber(today);
+        document.getElementById('totalPatients').textContent = utils.formatNumber(totalPatients);
+        document.getElementById('pendingPrescriptions').textContent = utils.formatNumber(pending);
+        
+        // Calculate changes (mock data for now)
+        document.getElementById('totalChange').textContent = '12%';
+        document.getElementById('todayChange').textContent = today;
+        document.getElementById('patientsChange').textContent = Math.floor(totalPatients * 0.15);
+        
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+    
+    // Load recent prescriptions
+    async function loadRecentPrescriptions() {
+      try {
+        const prescriptions = await utils.getDocs('prescriptions', {
+          where: [['doctorId', '==', currentUser.uid]],
+          orderBy: ['createdAt', 'desc'],
+          limit: 5
+        });
+        
+        const container = document.getElementById('recentPrescriptions');
+        
+        if (prescriptions.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">📋</div>
+              <div class="empty-title">No prescriptions yet</div>
+              <div class="empty-desc">Create your first prescription to get started</div>
+              <button class="btn btn-primary" onclick="window.location.href='/doctor/create-prescription.html'">
+                Create Prescription
+              </button>
+            </div>
+          `;
+          return;
+        }
+        
+        let html = '';
+        
+        prescriptions.forEach(prescription => {
+          const statusBadge = prescription.status === 'dispensed' 
+            ? '<span class="badge badge-success">Dispensed</span>'
+            : '<span class="badge badge-warning">Pending</span>';
+          
+          const date = utils.formatDate(prescription.createdAt, 'DD/MM/YYYY');
+          const time = utils.formatDate(prescription.createdAt, 'HH:mm');
+          const medicineCount = prescription.medicines?.length || 0;
+          
+          html += `
+            <div class="prescription-item hover-lift">
+              <div class="prescription-info">
+                <div class="prescription-patient">${prescription.patientName}</div>
+                <div class="prescription-meta">
+                  <span>📅 ${date} at ${time}</span>
+                  <span>💊 ${medicineCount} medicine${medicineCount !== 1 ? 's' : ''}</span>
+                  <span>${statusBadge}</span>
+                </div>
+              </div>
+              <div class="prescription-actions">
+                <button class="btn btn-sm btn-outline" onclick="viewPrescription('${prescription.id}')">
+                  View
+                </button>
+              </div>
+            </div>
+          `;
+        });
+        
+        container.innerHTML = html;
+        
+      } catch (error) {
+        console.error('Error loading prescriptions:', error);
+        document.getElementById('recentPrescriptions').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">❌</div>
+            <div class="empty-title">Error loading prescriptions</div>
+            <div class="empty-desc">Please try refreshing the page</div>
+          </div>
+        `;
+      }
+    }
+    
+    // View prescription
+    function viewPrescription(id) {
+      window.location.href = `/doctor/prescription-details.html?id=${id}`;
+    }
+    
+    // Update current date
+    function updateCurrentDate() {
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+    }
+    
+    // Mobile sidebar toggle
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('active');
+    }
+  </script>
+</body>
+</html>
