@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4F46E5">
+    <title>VeriScript - Digital Prescription Platform</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #4338CA;
+            --secondary: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --bg-light: #F9FAFB;
+            --bg-white: #FFFFFF;
+            --text-dark: #111827;
+            --text-gray: #6B7280;
+            --border: #E5E7EB;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* Loading Screen */
+        #loadingScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: white;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 16px 20px;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            background: white;
+            display: flex;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 72px;
+            z-index: 99;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 16px;
+            text-align: center;
+            border: none;
+            background: none;
+            color: var(--text-gray);
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .card-header {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-dark);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card.green {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+
+        .stat-card.orange {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
+
+        .stat-card.red {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-gray);
+        }
+
+        .search-box .form-input {
+            padding-left: 48px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        /* Medicine List */
+        .medicine-item {
+            padding: 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .medicine-item:hover {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.05);
+        }
+
+        .medicine-item.selected {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.1);
+        }
+
+        .medicine-name {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .medicine-details {
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        /* Selected Medicines */
+        .selected-medicine {
+            background: white;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .remove-medicine {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .dosage-inputs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .dosage-input {
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        /* Prescription List */
+        .prescription-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary);
+        }
+
+        .prescription-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .patient-name {
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--text-dark);
+        }
+
+        .prescription-date {
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .status-dispensed {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .prescription-medicines {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .medicine-line {
+            font-size: 14px;
+            color: var(--text-gray);
+            margin-bottom: 4px;
+        }
+
+        /* Ad Banner */
+        .ad-banner {
+            background: linear-gradient(90deg, #FF6B6B, #4ECDC4, #45B7D1, #FFA07A);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            padding: 16px;
+            border-radius: 12px;
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .ad-title {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .ad-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            float: right;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-gray);
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        /* QR Code */
+        .qr-container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        #qrcode {
+            display: inline-block;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .verification-code {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 20px 0;
+            letter-spacing: 4px;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--text-dark);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            z-index: 2000;
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success {
+            background: var(--secondary);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Login Screen */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-logo-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--primary);
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .login-title {
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            color: var(--text-gray);
+            margin-bottom: 32px;
+        }
+
+        .role-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .role-option {
+            padding: 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .role-option:hover {
+            border-color: var(--primary);
+        }
+
+        .role-option.selected {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.1);
+        }
+
+        .role-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .role-name {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen">
+        <div class="loader"></div>
+        <div class="loading-text">Loading VeriScript...</div>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" style="display: none;">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-logo">
+                    <div class="login-logo-icon">V</div>
+                    <h1 class="login-title">VeriScript</h1>
+                    <p class="login-subtitle">Digital Prescription Platform</p>
+                </div>
+
+                <div class="role-selector">
+                    <div class="role-option" data-role="doctor">
+                        <div class="role-icon">👨‍⚕️</div>
+                        <div class="role-name">Doctor</div>
+                    </div>
+                    <div class="role-option" data-role="chemist">
+                        <div class="role-icon">💊</div>
+                        <div class="role-name">Chemist</div>
+                    </div>
+                </div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" id="loginEmail" required placeholder="Enter your email">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" id="loginPassword" required placeholder="Enter your password">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+                </form>
+
+                <p style="text-align: center; margin-top: 20px; color: var(--text-gray);">
+                    Don't have an account? <a href="#" id="showRegister" style="color: var(--primary); font-weight: 600;">Register</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">V</div>
+                    <span>VeriScript</span>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">DR</div>
+                    <button class="btn btn-outline" id="logoutBtn" style="padding: 8px 16px; font-size: 14px;">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-screen="dashboard">📊 Dashboard</button>
+            <button class="nav-tab" data-screen="newPrescription">➕ New Rx</button>
+            <button class="nav-tab" data-screen="history">📋 History</button>
+        </nav>
+
+        <div class="container">
+            <!-- Dashboard Screen -->
+            <div id="dashboardScreen" class="screen active">
+                <!-- Ad Banner -->
+                <div class="ad-banner">
+                    <div class="ad-title">🎉 Special Offer: Premium Medical Supplies</div>
+                    <div class="ad-subtitle">Get 20% off on bulk orders - Limited time only!</div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalPrescriptions">0</div>
+                        <div class="stat-label">Total Prescriptions</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-value" id="dispensedCount">0</div>
+                        <div class="stat-label">Dispensed</div>
+                    </div>
+                    <div class="stat-card orange">
+                        <div class="stat-value" id="pendingCount">0</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card red">
+                        <div class="stat-value" id="todayCount">0</div>
+                        <div class="stat-label">Today</div>
+                    </div>
+                </div>
+
+                <!-- Recent Prescriptions -->
+                <div class="card">
+                    <div class="card-header">Recent Prescriptions</div>
+                    <div id="recentPrescriptions">
+                        <p style="text-align: center; color: var(--text-gray); padding: 20px;">No prescriptions yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Prescription Screen -->
+            <div id="newPrescriptionScreen" class="screen">
+                <div class="card">
+                    <div class="card-header">Patient Information</div>
+                    <form id="prescriptionForm">
+                        <div class="form-group">
+                            <label class="form-label">Patient Mobile Number</label>
+                            <input type="tel" class="form-input" id="patientMobile" required placeholder="10-digit mobile number" pattern="[0-9]{10}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Patient Name</label>
+                            <input type="text" class="form-input" id="patientName" required placeholder="Enter patient name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Age</label>
+                            <input type="number" class="form-input" id="patientAge" required placeholder="Enter age">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Gender</label>
+                            <select class="form-input" id="patientGender" required>
+                                <option value="">Select gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Search Medicines</div>
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="form-input" id="medicineSearch" placeholder="Search medicines...">
+                    </div>
+                    <div id="medicineResults" style="margin-top: 16px;"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Selected Medicines (<span id="selectedCount">0</span>)</div>
+                    <div id="selectedMedicines">
+                        <p style="text-align: center; color: var(--text-gray); padding: 20px;">No medicines selected</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="form-group">
+                        <label class="form-label">Additional Instructions</label>
+                        <textarea class="form-input" id="instructions" rows="3" placeholder="Enter any additional instructions..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Transaction PIN (T-PIN)</label>
+                        <input type="password" class="form-input" id="tpin" required placeholder="Enter 4-digit PIN" pattern="[0-9]{4}" maxlength="4">
+                    </div>
+                    <button class="btn btn-primary btn-block" id="sendPrescriptionBtn">
+                        📤 Send Prescription
+                    </button>
+                </div>
+            </div>
+
+            <!-- History Screen -->
+            <div id="historyScreen" class="screen">
+                <div class="card">
+                    <div class="card-header">Prescription History</div>
+                    <div class="search-box" style="margin-bottom: 16px;">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="form-input" id="historySearch" placeholder="Search by patient name or mobile...">
+                    </div>
+                    <div id="prescriptionHistory">
+                        <p style="text-align: center; color: var(--text-gray); padding: 20px;">No prescriptions found</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prescription Details Modal -->
+    <div id="prescriptionModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" id="closeModal">&times;</span>
+            <div class="modal-header">Prescription Details</div>
+            <div id="prescriptionDetails"></div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
+
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        // ============================================
+        // FIREBASE CONFIGURATION
+        // ============================================
+        // TODO: Replace with your Firebase config
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const functions = firebase.functions();
+
+        // ============================================
+        // SAMPLE MEDICINE DATABASE
+        // ============================================
+        const sampleMedicines = [
+            { id: 1, name: "Paracetamol", dosage: "500mg", type: "Tablet", manufacturer: "Generic" },
+            { id: 2, name: "Amoxicillin", dosage: "250mg", type: "Capsule", manufacturer: "Generic" },
+            { id: 3, name: "Ibuprofen", dosage: "400mg", type: "Tablet", manufacturer: "Generic" },
+            { id: 4, name: "Azithromycin", dosage: "500mg", type: "Tablet", manufacturer: "Generic" },
+            { id: 5, name: "Cetirizine", dosage: "10mg", type: "Tablet", manufacturer: "Generic" },
+            { id: 6, name: "Omeprazole", dosage: "20mg", type: "Capsule", manufacturer: "Generic" },
+            { id: 7, name: "Metformin", dosage: "500mg", type: "Tablet", manufacturer: "Generic" },
+            { id: 8, name: "Atorvastatin", dosage: "10mg", type: "Tablet", manufacturer: "Generic" },
+            { id: 9, name: "Losartan", dosage: "50mg", type: "Tablet", manufacturer: "Generic" },
+            { id: 10, name: "Levothyroxine", dosage: "50mcg", type: "Tablet", manufacturer: "Generic" }
+        ];
+
+        // ============================================
+        // STATE MANAGEMENT
+        // ============================================
+        let currentUser = null;
+        let selectedMedicines = [];
+        let allPrescriptions = [];
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function generateVerificationCode() {
+            return Math.floor(1000 + Math.random() * 9000).toString();
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp) return 'N/A';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            return date.toLocaleDateString('en-IN', { 
+                day: '2-digit', 
+                month: 'short', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        auth.onAuthStateChanged(user => {
+            const loadingScreen = document.getElementById('loadingScreen');
+            const loginScreen = document.getElementById('loginScreen');
+            const mainApp = document.getElementById('mainApp');
+
+            setTimeout(() => {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    if (user) {
+                        currentUser = user;
+                        loginScreen.style.display = 'none';
+                        mainApp.style.display = 'block';
+                        initializeApp();
+                    } else {
+                        loginScreen.style.display = 'block';
+                        mainApp.style.display = 'none';
+                    }
+                }, 500);
+            }, 1500);
+        });
+
+        // Login Form
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                showToast('Login successful!', 'success');
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await auth.signOut();
+                showToast('Logged out successfully', 'success');
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        });
+
+        // Role Selection
+        document.querySelectorAll('.role-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.role-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const screenName = this.dataset.screen;
+                
+                // Update active tab
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update active screen
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById(screenName + 'Screen').classList.add('active');
+
+                // Load data for specific screens
+                if (screenName === 'history') {
+                    loadPrescriptionHistory();
+                }
+            });
+        });
+
+        // ============================================
+        // MEDICINE SEARCH
+        // ============================================
+        let searchTimeout;
+        document.getElementById('medicineSearch').addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.toLowerCase().trim();
+            
+            searchTimeout = setTimeout(() => {
+                if (query.length < 2) {
+                    document.getElementById('medicineResults').innerHTML = '';
+                    return;
+                }
+
+                const results = sampleMedicines.filter(med => 
+                    med.name.toLowerCase().includes(query) ||
+                    med.type.toLowerCase().includes(query)
+                );
+
+                displayMedicineResults(results);
+            }, 300);
+        });
+
+        function displayMedicineResults(medicines) {
+            const container = document.getElementById('medicineResults');
+            
+            if (medicines.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-gray); padding: 20px;">No medicines found</p>';
+                return;
+            }
+
+            container.innerHTML = medicines.map(med => `
+                <div class="medicine-item" data-medicine='${JSON.stringify(med)}'>
+                    <div class="medicine-name">${med.name}</div>
+                    <div class="medicine-details">${med.dosage} • ${med.type} • ${med.manufacturer}</div>
+                </div>
+            `).join('');
+
+            // Add click handlers
+            container.querySelectorAll('.medicine-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const medicine = JSON.parse(this.dataset.medicine);
+                    addMedicine(medicine);
+                });
+            });
+        }
+
+        function addMedicine(medicine) {
+            // Check if already added
+            if (selectedMedicines.find(m => m.id === medicine.id)) {
+                showToast('Medicine already added', 'error');
+                return;
+            }
+
+            selectedMedicines.push({
+                ...medicine,
+                morning: 1,
+                afternoon: 1,
+                night: 1,
+                duration: 5
+            });
+
+            updateSelectedMedicines();
+            showToast('Medicine added', 'success');
+        }
+
+        function updateSelectedMedicines() {
+            const container = document.getElementById('selectedMedicines');
+            document.getElementById('selectedCount').textContent = selectedMedicines.length;
+
+            if (selectedMedicines.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-gray); padding: 20px;">No medicines selected</p>';
+                return;
+            }
+
+            container.innerHTML = selectedMedicines.map((med, index) => `
+                <div class="selected-medicine">
+                    <button class="remove-medicine" data-index="${index}">×</button>
+                    <div class="medicine-name">${med.name}</div>
+                    <div class="medicine-details">${med.dosage} • ${med.type}</div>
+                    <div class="dosage-inputs">
+                        <input type="number" class="dosage-input" placeholder="Morning" value="${med.morning}" data-index="${index}" data-field="morning" min="0" max="5">
+                        <input type="number" class="dosage-input" placeholder="Afternoon" value="${med.afternoon}" data-index="${index}" data-field="afternoon" min="0" max="5">
+                        <input type="number" class="dosage-input" placeholder="Night" value="${med.night}" data-index="${index}" data-field="night" min="0" max="5">
+                    </div>
+                    <input type="number" class="form-input" placeholder="Duration (days)" value="${med.duration}" data-index="${index}" data-field="duration" min="1" max="90" style="margin-top: 8px;">
+                </div>
+            `).join('');
+
+            // Add event listeners
+            container.querySelectorAll('.remove-medicine').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.dataset.index);
+                    selectedMedicines.splice(index, 1);
+                    updateSelectedMedicines();
+                });
+            });
+
+            container.querySelectorAll('.dosage-input, input[data-field="duration"]').forEach(input => {
+                input.addEventListener('change', function() {
+                    const index = parseInt(this.dataset.index);
+                    const field = this.dataset.field;
+                    selectedMedicines[index][field] = parseInt(this.value) || 0;
+                });
+            });
+        }
+
+        // ============================================
+        // SEND PRESCRIPTION
+        // ============================================
+        document.getElementById('sendPrescriptionBtn').addEventListener('click', async () => {
+            // Validate form
+            const mobile = document.getElementById('patientMobile').value;
+            const name = document.getElementById('patientName').value;
+            const age = document.getElementById('patientAge').value;
+            const gender = document.getElementById('patientGender').value;
+            const tpin = document.getElementById('tpin').value;
+            const instructions = document.getElementById('instructions').value;
+
+            if (!mobile || !name || !age || !gender || !tpin) {
+                showToast('Please fill all required fields', 'error');
+                return;
+            }
+
+            if (selectedMedicines.length === 0) {
+                showToast('Please select at least one medicine', 'error');
+                return;
+            }
+
+            if (tpin.length !== 4) {
+                showToast('T-PIN must be 4 digits', 'error');
+                return;
+            }
+
+            try {
+                const verificationCode = generateVerificationCode();
+                const prescriptionId = `RX${Date.now()}`;
+
+                // Create prescription document
+                const prescription = {
+                    prescriptionId,
+                    doctorId: currentUser.uid,
+                    doctorEmail: currentUser.email,
+                    patient: {
+                        name,
+                        mobile,
+                        age: parseInt(age),
+                        gender
+                    },
+                    medicines: selectedMedicines,
+                    instructions,
+                    verificationCode,
+                    status: 'pending',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    dispensedAt: null
+                };
+
+                // Save to Firestore
+                await db.collection('prescriptions').doc(prescriptionId).set(prescription);
+
+                // Show success modal with QR code
+                showPrescriptionSuccess(prescriptionId, verificationCode);
+
+                // Reset form
+                resetPrescriptionForm();
+
+                showToast('Prescription sent successfully!', 'success');
+
+                // Refresh dashboard
+                loadDashboardData();
+
+            } catch (error) {
+                console.error('Error sending prescription:', error);
+                showToast('Error sending prescription: ' + error.message, 'error');
+            }
+        });
+
+        function showPrescriptionSuccess(prescriptionId, verificationCode) {
+            const modal = document.getElementById('prescriptionModal');
+            const details = document.getElementById('prescriptionDetails');
+
+            details.innerHTML = `
+                <div class="qr-container">
+                    <h3 style="color: var(--secondary); margin-bottom: 20px;">✅ Prescription Sent Successfully!</h3>
+                    <div id="qrcode"></div>
+                    <div style="margin-top: 20px;">
+                        <p style="color: var(--text-gray); margin-bottom: 8px;">Verification Code:</p>
+                        <div class="verification-code">${verificationCode}</div>
+                    </div>
+                    <p style="color: var(--text-gray); margin-top: 20px;">
+                        Patient will receive this via WhatsApp
+                    </p>
+                    <button class="btn btn-primary btn-block" style="margin-top: 20px;" onclick="document.getElementById('prescriptionModal').classList.remove('active')">
+                        Close
+                    </button>
+                </div>
+            `;
+
+            modal.classList.add('active');
+
+            // Generate QR Code
+            new QRCode(document.getElementById("qrcode"), {
+                text: prescriptionId,
+                width: 200,
+                height: 200
+            });
+        }
+
+        function resetPrescriptionForm() {
+            document.getElementById('patientMobile').value = '';
+            document.getElementById('patientName').value = '';
+            document.getElementById('patientAge').value = '';
+            document.getElementById('patientGender').value = '';
+            document.getElementById('tpin').value = '';
+            document.getElementById('instructions').value = '';
+            document.getElementById('medicineSearch').value = '';
+            selectedMedicines = [];
+            updateSelectedMedicines();
+            document.getElementById('medicineResults').innerHTML = '';
+        }
+
+        // ============================================
+        // DASHBOARD
+        // ============================================
+        async function loadDashboardData() {
+            try {
+                const snapshot = await db.collection('prescriptions')
+                    .where('doctorId', '==', currentUser.uid)
+                    .orderBy('createdAt', 'desc')
+                    .limit(50)
+                    .get();
+
+                allPrescriptions = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                // Update stats
+                const total = allPrescriptions.length;
+                const dispensed = allPrescriptions.filter(p => p.status === 'dispensed').length;
+                const pending = allPrescriptions.filter(p => p.status === 'pending').length;
+                
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const todayPrescriptions = allPrescriptions.filter(p => {
+                    if (!p.createdAt) return false;
+                    const prescDate = p.createdAt.toDate();
+                    prescDate.setHours(0, 0, 0, 0);
+                    return prescDate.getTime() === today.getTime();
+                }).length;
+
+                document.getElementById('totalPrescriptions').textContent = total;
+                document.getElementById('dispensedCount').textContent = dispensed;
+                document.getElementById('pendingCount').textContent = pending;
+                document.getElementById('todayCount').textContent = todayPrescriptions;
+
+                // Display recent prescriptions
+                displayRecentPrescriptions(allPrescriptions.slice(0, 5));
+
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                showToast('Error loading dashboard data', 'error');
+            }
+        }
+
+        function displayRecentPrescriptions(prescriptions) {
+            const container = document.getElementById('recentPrescriptions');
+
+            if (prescriptions.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-gray); padding: 20px;">No prescriptions yet</p>';
+                return;
+            }
+
+            container.innerHTML = prescriptions.map(p => `
+                <div class="prescription-card" data-id="${p.id}">
+                    <div class="prescription-header">
+                        <div>
+                            <div class="patient-name">${p.patient.name}</div>
+                            <div class="prescription-date">${formatDate(p.createdAt)}</div>
+                        </div>
+                        <span class="status-badge status-${p.status}">${p.status.toUpperCase()}</span>
+                    </div>
+                    <div style="color: var(--text-gray); font-size: 14px;">
+                        📱 ${p.patient.mobile} • ${p.patient.age}Y • ${p.patient.gender}
+                    </div>
+                    <div class="prescription-medicines">
+                        <strong>${p.medicines.length} Medicine(s):</strong>
+                        ${p.medicines.slice(0, 2).map(m => `
+                            <div class="medicine-line">• ${m.name} ${m.dosage}</div>
+                        `).join('')}
+                        ${p.medicines.length > 2 ? `<div class="medicine-line">... and ${p.medicines.length - 2} more</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            // Add click handlers
+            container.querySelectorAll('.prescription-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const id = this.dataset.id;
+                    const prescription = allPrescriptions.find(p => p.id === id);
+                    showPrescriptionDetails(prescription);
+                });
+            });
+        }
+
+        function showPrescriptionDetails(prescription) {
+            const modal = document.getElementById('prescriptionModal');
+            const details = document.getElementById('prescriptionDetails');
+
+            details.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: var(--primary);">${prescription.patient.name}</h3>
+                    <p style="color: var(--text-gray);">
+                        ${prescription.patient.age}Y • ${prescription.patient.gender} • ${prescription.patient.mobile}
+                    </p>
+                    <span class="status-badge status-${prescription.status}" style="margin-top: 8px; display: inline-block;">
+                        ${prescription.status.toUpperCase()}
+                    </span>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <strong>Prescription ID:</strong> ${prescription.prescriptionId}<br>
+                    <strong>Date:</strong> ${formatDate(prescription.createdAt)}<br>
+                    <strong>Verification Code:</strong> <span style="color: var(--primary); font-weight: 700;">${prescription.verificationCode}</span>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <strong>Medicines (${prescription.medicines.length}):</strong>
+                    ${prescription.medicines.map(m => `
+                        <div style="background: var(--bg-light); padding: 12px; border-radius: 8px; margin-top: 8px;">
+                            <div style="font-weight: 600;">${m.name} ${m.dosage}</div>
+                            <div style="font-size: 14px; color: var(--text-gray);">
+                                ${m.morning}-${m.afternoon}-${m.night} for ${m.duration} days
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                ${prescription.instructions ? `
+                    <div style="margin-bottom: 20px;">
+                        <strong>Instructions:</strong>
+                        <p style="color: var(--text-gray); margin-top: 8px;">${prescription.instructions}</p>
+                    </div>
+                ` : ''}
+
+                <button class="btn btn-primary btn-block" onclick="document.getElementById('prescriptionModal').classList.remove('active')">
+                    Close
+                </button>
+            `;
+
+            modal.classList.add('active');
+        }
+
+        // ============================================
+        // PRESCRIPTION HISTORY
+        // ============================================
+        function loadPrescriptionHistory() {
+            displayRecentPrescriptions(allPrescriptions);
+        }
+
+        // History Search
+        document.getElementById('historySearch').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase().trim();
+            
+            if (query.length === 0) {
+                displayRecentPrescriptions(allPrescriptions);
+                return;
+            }
+
+            const filtered = allPrescriptions.filter(p => 
+                p.patient.name.toLowerCase().includes(query) ||
+                p.patient.mobile.includes(query) ||
+                p.prescriptionId.toLowerCase().includes(query)
+            );
+
+            const container = document.getElementById('prescriptionHistory');
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-gray); padding: 20px;">No prescriptions found</p>';
+            } else {
+                displayRecentPrescriptions(filtered);
+            }
+        });
+
+        // ============================================
+        // MODAL HANDLERS
+        // ============================================
+        document.getElementById('closeModal').addEventListener('click', () => {
+            document.getElementById('prescriptionModal').classList.remove('active');
+        });
+
+        document.getElementById('prescriptionModal').addEventListener('click', (e) => {
+            if (e.target.id === 'prescriptionModal') {
+                document.getElementById('prescriptionModal').classList.remove('active');
+            }
+        });
+
+        // ============================================
+        // INITIALIZE APP
+        // ============================================
+        function initializeApp() {
+            // Set user avatar
+            const email = currentUser.email;
+            const initials = email.substring(0, 2).toUpperCase();
+            document.getElementById('userAvatar').textContent = initials;
+
+            // Load dashboard data
+            loadDashboardData();
+
+            // Set up real-time listener for prescriptions
+            db.collection('prescriptions')
+                .where('doctorId', '==', currentUser.uid)
+                .onSnapshot(snapshot => {
+                    loadDashboardData();
+                });
+        }
+
+        // ============================================
+        // DEMO MODE (For testing without Firebase)
+        // ============================================
+        // Uncomment this section to test without Firebase setup
+        /*
+        setTimeout(() => {
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            
+            currentUser = { uid: 'demo-user', email: 'demo@veriscript.com' };
+            document.getElementById('userAvatar').textContent = 'DM';
+            
+            // Add some demo data
+            allPrescriptions = [
+                {
+                    id: 'RX001',
+                    prescriptionId: 'RX001',
+                    patient: { name: 'John Doe', mobile: '9876543210', age: 35, gender: 'Male' },
+                    medicines: [
+                        { name: 'Paracetamol', dosage: '500mg', morning: 1, afternoon: 1, night: 1, duration: 5 }
+                    ],
+                    status: 'pending',
+                    createdAt: new Date(),
+                    verificationCode: '1234'
+                }
+            ];
+            
+            displayRecentPrescriptions(allPrescriptions);
+            document.getElementById('totalPrescriptions').textContent = '1';
+            document.getElementById('pendingCount').textContent = '1';
+        }, 1500);
+        */
+    </script>
+</body>
+</html>
