@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Prescription - VeriScript</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  
+  <!-- QR Code Library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  
+  <style>
+    body {
+      background: #f8fafc;
+    }
+    
+    .prescription-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .prescription-header {
+      background: white;
+      padding: 2rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header-left h1 {
+      margin: 0 0 0.5rem;
+      font-size: 2rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .header-left p {
+      margin: 0;
+      color: #64748b;
+    }
+    
+    .prescription-layout {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 2rem;
+    }
+    
+    .form-section {
+      background: white;
+      padding: 2rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+    
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #1e293b;
+    }
+    
+    .section-icon {
+      font-size: 1.5rem;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-group-full {
+      grid-column: 1 / -1;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #475569;
+      font-size: 0.875rem;
+    }
+    
+    .form-label.required::after {
+      content: ' *';
+      color: #ef4444;
+    }
+    
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+    
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    
+    /* Medicine Section */
+    .medicines-container {
+      margin-top: 2rem;
+    }
+    
+    .medicine-card {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    .medicine-card:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+    }
+    
+    .medicine-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .medicine-number {
+      font-weight: 700;
+      color: #667eea;
+      font-size: 1.125rem;
+    }
+    
+    .remove-medicine {
+      background: #fee2e2;
+      color: #991b1b;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .remove-medicine:hover {
+      background: #fecaca;
+      transform: scale(1.05);
+    }
+    
+    .medicine-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .dosage-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    
+    .add-medicine-btn {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+      border: 2px dashed #667eea;
+      border-radius: 1rem;
+      color: #667eea;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    .add-medicine-btn:hover {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+      transform: translateY(-2px);
+    }
+    
+    /* Preview Panel */
+    .preview-panel {
+      position: sticky;
+      top: 2rem;
+      background: white;
+      border-radius: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      max-height: calc(100vh - 4rem);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .preview-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    
+    .preview-header h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      color: white;
+    }
+    
+    .preview-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+    
+    .preview-section {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .preview-section:last-child {
+      border-bottom: none;
+    }
+    
+    .preview-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    
+    .preview-value {
+      font-size: 1rem;
+      color: #1e293b;
+      font-weight: 500;
+    }
+    
+    .preview-medicine {
+      background: #f8fafc;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .preview-medicine-name {
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 0.25rem;
+    }
+    
+    .preview-medicine-details {
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    
+    .preview-footer {
+      padding: 1.5rem;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    
+    .btn {
+      padding: 1rem 2rem;
+      border-radius: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      flex: 1;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #475569;
+    }
+    
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+    
+    /* Success Modal */
+    .success-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    
+    .success-modal.active {
+      display: flex;
+    }
+    
+    .success-content {
+      background: white;
+      border-radius: 2rem;
+      padding: 3rem;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+      animation: scaleUp 0.5s ease;
+    }
+    
+    .success-icon {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      margin: 0 auto 1.5rem;
+      animation: bounce 1s ease;
+    }
+    
+    .qr-code-container {
+      background: #f8fafc;
+      padding: 2rem;
+      border-radius: 1rem;
+      margin: 2rem 0;
+    }
+    
+    #qrcode {
+      display: flex;
+      justify-content: center;
+    }
+    
+    .verification-code {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #667eea;
+      margin: 1rem 0;
+      letter-spacing: 0.2em;
+    }
+    
+    .share-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    
+    .share-btn {
+      padding: 1rem;
+      border-radius: 0.75rem;
+      border: 2px solid #e2e8f0;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .share-btn:hover {
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.05);
+      transform: translateY(-2px);
+    }
+    
+    .share-icon {
+      font-size: 2rem;
+    }
+    
+    @media (max-width: 1024px) {
+      .prescription-layout {
+        grid-template-columns: 1fr;
+      }
+      
+      .preview-panel {
+        position: relative;
+        top: 0;
+        max-height: none;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .form-row,
+      .medicine-grid,
+      .dosage-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="prescription-container">
+    <!-- Header -->
+    <div class="prescription-header animate-fadeInDown">
+      <div class="header-left">
+        <h1>Create New Prescription</h1>
+        <p>Fill in the details to generate a digital prescription</p>
+      </div>
+      <div class="header-right">
+        <button class="btn btn-secondary" onclick="window.location.href='/doctor/dashboard.html'">
+          ← Back to Dashboard
+        </button>
+      </div>
+    </div>
+    
+    <!-- Main Layout -->
+    <div class="prescription-layout">
+      <!-- Form Section -->
+      <div>
+        <!-- Patient Information -->
+        <div class="form-section animate-fadeInUp">
+          <h2 class="section-title">
+            <span class="section-icon">👤</span>
+            Patient Information
+          </h2>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">Patient Name</label>
+              <input type="text" class="form-input" id="patientName" placeholder="John Doe" required>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label required">Age</label>
+              <input type="number" class="form-input" id="patientAge" placeholder="35" min="0" max="150" required>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">Gender</label>
+              <select class="form-select" id="patientGender" required>
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Phone Number</label>
+              <input type="tel" class="form-input" id="patientPhone" placeholder="9876543210">
+            </div>
+          </div>
+          
+          <div class="form-group form-group-full">
+            <label class="form-label">Address</label>
+            <textarea class="form-textarea" id="patientAddress" placeholder="Patient address (optional)"></textarea>
+          </div>
+        </div>
+        
+        <!-- Medicines -->
+        <div class="form-section animate-fadeInUp delay-100 medicines-container">
+          <h2 class="section-title">
+            <span class="section-icon">💊</span>
+            Medicines
+          </h2>
+          
+          <div id="medicinesContainer">
+            <!-- Medicine cards will be added here -->
+          </div>
+          
+          <button type="button" class="add-medicine-btn" onclick="addMedicine()">
+            <span>➕</span>
+            <span>Add Medicine</span>
+          </button>
+        </div>
+        
+        <!-- Diagnosis & Notes -->
+        <div class="form-section animate-fadeInUp delay-200">
+          <h2 class="section-title">
+            <span class="section-icon">📋</span>
+            Diagnosis & Notes
+          </h2>
+          
+          <div class="form-group form-group-full">
+            <label class="form-label required">Diagnosis</label>
+            <textarea class="form-textarea" id="diagnosis" placeholder="Enter diagnosis" required></textarea>
+          </div>
+          
+          <div class="form-group form-group-full">
+            <label class="form-label">Additional Notes</label>
+            <textarea class="form-textarea" id="notes" placeholder="Any additional instructions or notes"></textarea>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Follow-up Date</label>
+              <input type="date" class="form-input" id="followupDate">
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Valid Until</label>
+              <input type="date" class="form-input" id="validUntil">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="action-buttons animate-fadeInUp delay-300">
+          <button type="button" class="btn btn-secondary" onclick="saveDraft()">
+            💾 Save as Draft
+          </button>
+          <button type="button" class="btn btn-primary" onclick="createPrescription()">
+            ✓ Create Prescription
+          </button>
+        </div>
+      </div>
+      
+      <!-- Preview Panel -->
+      <div class="preview-panel animate-fadeInRight">
+        <div class="preview-header">
+          <h3>📄 Live Preview</h3>
+        </div>
+        
+        <div class="preview-body" id="previewBody">
+          <div class="preview-section">
+            <div class="preview-label">Patient Name</div>
+            <div class="preview-value" id="previewPatientName">-</div>
+          </div>
+          
+          <div class="preview-section">
+            <div class="preview-label">Age / Gender</div>
+            <div class="preview-value" id="previewAgeGender">-</div>
+          </div>
+          
+          <div class="preview-section">
+            <div class="preview-label">Medicines</div>
+            <div id="previewMedicines">
+              <p style="color: #94a3b8; font-size: 0.875rem;">No medicines added yet</p>
+            </div>
+          </div>
+          
+          <div class="preview-section">
+            <div class="preview-label">Diagnosis</div>
+            <div class="preview-value" id="previewDiagnosis">-</div>
+          </div>
+          
+          <div class="preview-section">
+            <div class="preview-label">Notes</div>
+            <div class="preview-value" id="previewNotes">-</div>
+          </div>
+        </div>
+        
+        <div class="preview-footer">
+          <div style="font-size: 0.75rem; color: #64748b; text-align: center;">
+            Preview updates automatically as you type
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Success Modal -->
+  <div class="success-modal" id="successModal">
+    <div class="success-content">
+      <div class="success-icon">✓</div>
+      <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 1rem;">Prescription Created!</h2>
+      <p style="color: #64748b; margin-bottom: 2rem;">
+        Your prescription has been created successfully. Share it with the patient using the options below.
+      </p>
+      
+      <div class="qr-code-container">
+        <div id="qrcode"></div>
+        <div class="verification-code" id="verificationCode">------</div>
+        <div style="font-size: 0.875rem; color: #64748b;">Verification Code</div>
+      </div>
+      
+      <div class="share-buttons">
+        <button class="share-btn" onclick="shareViaSMS()">
+          <span class="share-icon">📱</span>
+          <span>SMS</span>
+        </button>
+        <button class="share-btn" onclick="shareViaWhatsApp()">
+          <span class="share-icon">💬</span>
+          <span>WhatsApp</span>
+        </button>
+        <button class="share-btn" onclick="shareViaEmail()">
+          <span class="share-icon">📧</span>
+          <span>Email</span>
+        </button>
+      </div>
+      
+      <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+        <button class="btn btn-secondary" onclick="printPrescription()" style="flex: 1;">
+          🖨️ Print
+        </button>
+        <button class="btn btn-primary" onclick="closeSuccessModal()" style="flex: 1;">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  
+  <!-- App Scripts -->
+  <script src="../js/config.js"></script>
+  <script src="../js/utils.js"></script>
+  
+  <script>
+    let currentUser = null;
+    let medicineCount = 0;
+    let currentPrescriptionId = null;
+    
+    // Initialize
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        currentUser = await utils.checkAuth('/doctor/login.html');
+        
+        // Add first medicine by default
+        addMedicine();
+        
+        // Setup live preview
+        setupLivePreview();
+        
+        // Set default valid until date (7 days from now)
+        const validUntil = new Date();
+        validUntil.setDate(validUntil.getDate() + 7);
+        document.getElementById('validUntil').value = validUntil.toISOString().split('T')[0];
+        
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    });
+    
+    // Add medicine
+    function addMedicine() {
+      medicineCount++;
+      
+      const medicineCard = document.createElement('div');
+      medicineCard.className = 'medicine-card animate-fadeInUp';
+      medicineCard.id = `medicine-${medicineCount}`;
+      
+      medicineCard.innerHTML = `
+        <div class="medicine-header">
+          <div class="medicine-number">Medicine ${medicineCount}</div>
+          <button type="button" class="remove-medicine" onclick="removeMedicine(${medicineCount})">
+            ✕ Remove
+          </button>
+        </div>
+        
+        <div class="medicine-grid">
+          <div class="form-group">
+            <label class="form-label required">Medicine Name</label>
+            <input type="text" class="form-input medicine-name" placeholder="e.g., Paracetamol 500mg" required>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label required">Frequency</label>
+            <select class="form-select medicine-frequency" required>
+              <option value="">Select</option>
+              <option value="Once daily">Once daily</option>
+              <option value="Twice daily">Twice daily</option>
+              <option value="Thrice daily">Thrice daily</option>
+              <option value="Four times daily">Four times daily</option>
+              <option value="As needed">As needed</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label required">Duration</label>
+            <input type="text" class="form-input medicine-duration" placeholder="e.g., 5 days" required>
+          </div>
+        </div>
+        
+        <div class="dosage-grid">
+          <div class="form-group">
+            <label class="form-label">Morning</label>
+            <select class="form-select medicine-morning">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Afternoon</label>
+            <select class="form-select medicine-afternoon">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Night</label>
+            <select class="form-select medicine-night">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Instructions</label>
+          <input type="text" class="form-input medicine-instructions" placeholder="e.g., Take after meals">
+        </div>
+      `;
+      
+      document.getElementById('medicinesContainer').appendChild(medicineCard);
+      updatePreview();
+    }
+    
+    // Remove medicine
+    function removeMedicine(id) {
+      const card = document.getElementById(`medicine-${id}`);
+      if (card) {
+        card.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => {
+          card.remove();
+          updatePreview();
+        }, 300);
+      }
+    }
+    
+    // Setup live preview
+    function setupLivePreview() {
+      // Patient info
+      document.getElementById('patientName').addEventListener('input', updatePreview);
+      document.getElementById('patientAge').addEventListener('input', updatePreview);
+      document.getElementById('patientGender').addEventListener('change', updatePreview);
+      document.getElementById('diagnosis').addEventListener('input', updatePreview);
+      document.getElementById('notes').addEventListener('input', updatePreview);
+      
+      // Medicines (use event delegation)
+      document.getElementById('medicinesContainer').addEventListener('input', updatePreview);
+      document.getElementById('medicinesContainer').addEventListener('change', updatePreview);
+    }
+    
+    // Update preview
+    function updatePreview() {
+      // Patient info
+      const patientName = document.getElementById('patientName').value || '-';
+      const patientAge = document.getElementById('patientAge').value;
+      const patientGender = document.getElementById('patientGender').value;
+      
+      document.getElementById('previewPatientName').textContent = patientName;
+      document.getElementById('previewAgeGender').textContent = 
+        patientAge && patientGender ? `${patientAge} years / ${patientGender}` : '-';
+      
+      // Medicines
+      const medicines = getMedicines();
+      const previewMedicines = document.getElementById('previewMedicines');
+      
+      if (medicines.length === 0) {
+        previewMedicines.innerHTML = '<p style="color: #94a3b8; font-size: 0.875rem;">No medicines added yet</p>';
+      } else {
+        previewMedicines.innerHTML = medicines.map((med, index) => `
+          <div class="preview-medicine">
+            <div class="preview-medicine-name">${index + 1}. ${med.name || 'Medicine name'}</div>
+            <div class="preview-medicine-details">
+              ${med.morning}-${med.afternoon}-${med.night} | ${med.frequency || 'Frequency'} | ${med.duration || 'Duration'}
+              ${med.instructions ? `<br>📝 ${med.instructions}` : ''}
+            </div>
+          </div>
+        `).join('');
+      }
+      
+      // Diagnosis & Notes
+      document.getElementById('previewDiagnosis').textContent = 
+        document.getElementById('diagnosis').value || '-';
+      document.getElementById('previewNotes').textContent = 
+        document.getElementById('notes').value || '-';
+    }
+    
+    // Get medicines data
+    function getMedicines() {
+      const medicines = [];
+      const medicineCards = document.querySelectorAll('.medicine-card');
+      
+      medicineCards.forEach(card => {
+        const name = card.querySelector('.medicine-name').value;
+        const frequency = card.querySelector('.medicine-frequency').value;
+        const duration = card.querySelector('.medicine-duration').value;
+        const morning = card.querySelector('.medicine-morning').value;
+        const afternoon = card.querySelector('.medicine-afternoon').value;
+        const night = card.querySelector('.medicine-night').value;
+        const instructions = card.querySelector('.medicine-instructions').value;
+        
+        if (name && frequency && duration) {
+          medicines.push({
+            name,
+            frequency,
+            duration,
+            morning,
+            afternoon,
+            night,
+            instructions
+          });
+        }
+      });
+      
+      return medicines;
+    }
+    
+    // Validate form
+    function validateForm() {
+      const patientName = document.getElementById('patientName').value.trim();
+      const patientAge = document.getElementById('patientAge').value;
+      const patientGender = document.getElementById('patientGender').value;
+      const diagnosis = document.getElementById('diagnosis').value.trim();
+      const medicines = getMedicines();
+      
+      if (!patientName) {
+        utils.showToast('Please enter patient name', 'error');
+        return false;
+      }
+      
+      if (!patientAge) {
+        utils.showToast('Please enter patient age', 'error');
+        return false;
+      }
+      
+      if (!patientGender) {
+        utils.showToast('Please select patient gender', 'error');
+        return false;
+      }
+      
+      if (medicines.length === 0) {
+        utils.showToast('Please add at least one medicine', 'error');
+        return false;
+      }
+      
+      if (!diagnosis) {
+        utils.showToast('Please enter diagnosis', 'error');
+        return false;
+      }
+      
+      return true;
+    }
+    
+    // Create prescription
+    async function createPrescription() {
+      if (!validateForm()) {
+        return;
+      }
+      
+      utils.showLoader();
+      
+      try {
+        // Get doctor info
+        const doctorDoc = await utils.getDoc('users', currentUser.uid);
+        
+        // Generate verification code
+        const verificationCode = utils.generateVerificationCode();
+        
+        // Prepare prescription data
+        const prescriptionData = {
+          // Patient info
+          patientName: document.getElementById('patientName').value.trim(),
+          patientAge: parseInt(document.getElementById('patientAge').value),
+          patientGender: document.getElementById('patientGender').value,
+          patientPhone: document.getElementById('patientPhone').value.trim(),
+          patientAddress: document.getElementById('patientAddress').value.trim(),
+          
+          // Doctor info
+          doctorId: currentUser.uid,
+          doctorName: doctorDoc.name,
+          doctorEmail: doctorDoc.email,
+          doctorPhone: doctorDoc.phone,
+          doctorRegistration: doctorDoc.registrationNumber,
+          doctorSpecialization: doctorDoc.specialization,
+          clinicName: doctorDoc.clinicName,
+          clinicAddress: doctorDoc.clinicAddress,
+          
+          // Prescription details
+          medicines: getMedicines(),
+          diagnosis: document.getElementById('diagnosis').value.trim(),
+          notes: document.getElementById('notes').value.trim(),
+          followupDate: document.getElementById('followupDate').value || null,
+          validUntil: document.getElementById('validUntil').value || null,
+          
+          // Verification
+          verificationCode: verificationCode,
+          status: 'pending',
+          
+          // Timestamps
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        // Save to Firestore
+        const prescriptionId = await utils.addDoc('prescriptions', prescriptionData);
+        currentPrescriptionId = prescriptionId;
+        
+        // Generate QR code
+        const prescriptionUrl = `${window.location.origin}/patient/view.html?id=${prescriptionId}`;
+        await QRCode.toCanvas(
+          document.getElementById('qrcode'),
+          prescriptionUrl,
+          { width: 200, margin: 2 }
+        );
+        
+        // Show verification code
+        document.getElementById('verificationCode').textContent = verificationCode;
+        
+        // Track event
+        utils.trackEvent('prescription_created', {
+          prescriptionId: prescriptionId
+        });
+        
+        // Show success modal
+        document.getElementById('successModal').classList.add('active');
+        
+        utils.hideLoader();
+        
+      } catch (error) {
+        console.error('Error creating prescription:', error);
+        utils.showToast('Error creating prescription', 'error');
+        utils.hideLoader();
+      }
+    }
+    
+    // Save draft
+    async function saveDraft() {
+      utils.showToast('Draft saved successfully!', 'success');
+    }
+    
+    // Share via SMS
+    function shareViaSMS() {
+      const phone = document.getElementById('patientPhone').value;
+      if (!phone) {
+        utils.showToast('Please enter patient phone number', 'error');
+        return;
+      }
+      
+      const url = `${window.location.origin}/patient/view.html?id=${currentPrescriptionId}`;
+      const message = `Your prescription is ready. View it here: ${url}\nVerification Code: ${document.getElementById('verificationCode').textContent}`;
+      
+      window.open(`sms:${phone}?body=${encodeURIComponent(message)}`);
+    }
+    
+    // Share via WhatsApp
+    function shareViaWhatsApp() {
+      const phone = document.getElementById('patientPhone').value;
+      const url = `${window.location.origin}/patient/view.html?id=${currentPrescriptionId}`;
+      const message = `Your prescription is ready. View it here: ${url}\nVerification Code: ${document.getElementById('verificationCode').textContent}`;
+      
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`);
+    }
+    
+    // Share via Email
+    function shareViaEmail() {
+      const url = `${window.location.origin}/patient/view.html?id=${currentPrescriptionId}`;
+      const subject = 'Your Prescription - VeriScript';
+      const body = `Your prescription is ready.\n\nView it here: ${url}\n\nVerification Code: ${document.getElementById('verificationCode').textContent}`;
+      
+      window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+    }
+    
+    // Print prescription
+    function printPrescription() {
+      window.open(`/patient/view.html?id=${currentPrescriptionId}`, '_blank');
+    }
+    
+    // Close success modal
+    function closeSuccessModal() {
+      document.getElementById('successModal').classList.remove('active');
+      window.location.href = '/doctor/dashboard.html';
+    }
+  </script>
+</body>
+</html>
