@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ad Management - VeriScript Admin</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <style>
+    .admin-container {
+      min-height: 100vh;
+      background: var(--gray-50);
+    }
+    
+    .admin-header {
+      background: white;
+      padding: 1.5rem 2rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .content-area {
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .ads-table-container {
+      background: white;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+    
+    .table-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .filters {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    .ad-preview {
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-md);
+      color: white;
+      font-size: 0.875rem;
+      margin: 0.5rem 0;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      overflow-y: auto;
+    }
+    
+    .modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: var(--radius-lg);
+      max-width: 800px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .modal-body {
+      padding: 1.5rem;
+    }
+    
+    .modal-footer {
+      padding: 1.5rem;
+      border-top: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+    
+    .color-picker-group {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-end;
+    }
+    
+    .color-preview {
+      width: 50px;
+      height: 50px;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--gray-300);
+    }
+    
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <!-- Header -->
+    <div class="admin-header">
+      <div>
+        <h1 style="margin: 0; font-size: 1.5rem;">📊 Ad Management</h1>
+        <p style="margin: 0.25rem 0 0; color: var(--gray-600); font-size: 0.875rem;">
+          Manage advertising campaigns across all portals
+        </p>
+      </div>
+      <div style="display: flex; gap: 1rem;">
+        <button class="btn btn-outline" onclick="window.location.href='/admin/dashboard.html'">
+          ← Back to Dashboard
+        </button>
+        <button class="btn btn-outline" onclick="utils.logout()">
+          Logout
+        </button>
+      </div>
+    </div>
+    
+    <!-- Content Area -->
+    <div class="content-area">
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Total Ads</div>
+          <div style="font-size: 2rem; font-weight: 700;" id="totalAds">0</div>
+        </div>
+        
+        <div class="stat-card">
+          <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Active Ads</div>
+          <div style="font-size: 2rem; font-weight: 700; color: var(--success-color);" id="activeAds">0</div>
+        </div>
+        
+        <div class="stat-card">
+          <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Total Impressions</div>
+          <div style="font-size: 2rem; font-weight: 700;" id="totalImpressions">0</div>
+        </div>
+        
+        <div class="stat-card">
+          <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Total Clicks</div>
+          <div style="font-size: 2rem; font-weight: 700;" id="totalClicks">0</div>
+        </div>
+        
+        <div class="stat-card">
+          <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">CTR</div>
+          <div style="font-size: 2rem; font-weight: 700; color: var(--primary-color);" id="avgCTR">0%</div>
+        </div>
+        
+        <div class="stat-card">
+          <div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 0.5rem;">Total Revenue</div>
+          <div style="font-size: 2rem; font-weight: 700; color: var(--success-color);" id="totalRevenue">₹0</div>
+        </div>
+      </div>
+      
+      <!-- Ads Table -->
+      <div class="ads-table-container">
+        <div class="table-header">
+          <h3 style="margin: 0;">All Advertisements</h3>
+          
+          <div class="filters">
+            <select id="statusFilter" class="form-input" style="width: auto;" onchange="loadAds()">
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="paused">Paused</option>
+              <option value="expired">Expired</option>
+            </select>
+            
+            <select id="portalFilter" class="form-input" style="width: auto;" onchange="loadAds()">
+              <option value="all">All Portals</option>
+              <option value="doctor">Doctor</option>
+              <option value="chemist">Chemist</option>
+              <option value="patient">Patient</option>
+            </select>
+            
+            <button class="btn btn-primary" onclick="openCreateAdModal()">
+              + Create New Ad
+            </button>
+          </div>
+        </div>
+        
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Preview</th>
+              <th>Portals</th>
+              <th>Status</th>
+              <th>Impressions</th>
+              <th>Clicks</th>
+              <th>CTR</th>
+              <th>Revenue</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="adsTable">
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 2rem; color: var(--gray-500);">
+                Loading ads...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Create/Edit Ad Modal -->
+  <div id="adModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="margin: 0;" id="modalTitle">Create New Ad</h3>
+        <button onclick="closeModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+      </div>
+      
+      <form id="adForm">
+        <div class="modal-body">
+          <!-- Ad Content -->
+          <div class="form-group">
+            <label class="form-label required" for="adText">Ad Text</label>
+            <textarea 
+              id="adText" 
+              class="form-textarea" 
+              rows="3"
+              placeholder="Enter ad text (60-80 characters recommended)"
+              required
+              maxlength="200"
+            ></textarea>
+            <div class="form-help" id="charCount">0 / 200 characters</div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="adLink">Link URL</label>
+            <input 
+              type="url" 
+              id="adLink" 
+              class="form-input" 
+              placeholder="https://example.com"
+            >
+          </div>
+          
+          <!-- Targeting -->
+          <h4 style="margin-top: 2rem; margin-bottom: 1rem;">Targeting</h4>
+          
+          <div class="form-group">
+            <label class="form-label required">Target Portals</label>
+            <div class="checkbox-group">
+              <div class="checkbox-item">
+                <input type="checkbox" id="portalDoctor" value="doctor" checked>
+                <label for="portalDoctor">Doctor</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="portalChemist" value="chemist" checked>
+                <label for="portalChemist">Chemist</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="portalPatient" value="patient" checked>
+                <label for="portalPatient">Patient</label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Scheduling -->
+          <h4 style="margin-top: 2rem; margin-bottom: 1rem;">Scheduling</h4>
+          
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label required" for="startDate">Start Date</label>
+              <input type="datetime-local" id="startDate" class="form-input" required>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label required" for="endDate">End Date</label>
+              <input type="datetime-local" id="endDate" class="form-input" required>
+            </div>
+          </div>
+          
+          <!-- Styling -->
+          <h4 style="margin-top: 2rem; margin-bottom: 1rem;">Styling</h4>
+          
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="backgroundColor">Background Color</label>
+              <div class="color-picker-group">
+                <input type="color" id="backgroundColor" value="#2563eb" style="width: 60px; height: 40px;">
+                <input type="text" class="form-input" id="backgroundColorText" value="#2563eb" style="flex: 1;">
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="textColor">Text Color</label>
+              <div class="color-picker-group">
+                <input type="color" id="textColor" value="#ffffff" style="width: 60px; height: 40px;">
+                <input type="text" class="form-input" id="textColorText" value="#ffffff" style="flex: 1;">
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="variant">Variant</label>
+            <select id="variant" class="form-input">
+              <option value="primary">Primary (Blue)</option>
+              <option value="success">Success (Green)</option>
+              <option value="warning">Warning (Orange)</option>
+              <option value="danger">Danger (Red)</option>
+              <option value="purple">Purple</option>
+            </select>
+          </div>
+          
+          <!-- Budget & Priority -->
+          <h4 style="margin-top: 2rem; margin-bottom: 1rem;">Budget & Priority</h4>
+          
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="priority">Priority (1-10)</label>
+              <input type="number" id="priority" class="form-input" min="1" max="10" value="5">
+              <div class="form-help">Higher priority ads show first</div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="dailyBudget">Daily Budget (₹)</label>
+              <input type="number" id="dailyBudget" class="form-input" min="0" value="1000">
+            </div>
+          </div>
+          
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="costPerImpression">Cost Per 1000 Impressions (₹)</label>
+              <input type="number" id="costPerImpression" class="form-input" min="0" step="0.01" value="0.50">
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="costPerClick">Cost Per Click (₹)</label>
+              <input type="number" id="costPerClick" class="form-input" min="0" step="0.01" value="5.00">
+            </div>
+          </div>
+          
+          <!-- Preview -->
+          <h4 style="margin-top: 2rem; margin-bottom: 1rem;">Preview</h4>
+          <div id="adPreview" class="ad-preview" style="background: #2563eb;">
+            Enter ad text to see preview...
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal()">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <span id="submitButtonText">Create Ad</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Loading Spinner -->
+  <div id="loader" class="loader">
+    <div class="loader-content">
+      <div class="spinner"></div>
+      <div class="loader-text">Loading...</div>
+    </div>
+  </div>
+  
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  
+  <!-- App Scripts -->
+  <script src="/js/config.js"></script>
+  <script src="/js/utils.js"></script>
+  
+  <script src="/admin/ads.js"></script>
+</body>
+</html>
