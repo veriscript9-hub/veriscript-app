@@ -2,13 +2,13 @@
 // Replace these with your actual Firebase credentials
 
 const firebaseConfig = {
-  apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
-  measurementId: "YOUR_MEASUREMENT_ID"
+  apiKey: "AIzaSyD7kjkyqlCBrg9DzFQt81I2v6gI7LkB3F0",
+  authDomain: "veriscript-app.firebaseapp.com",
+  projectId: "veriscript-app",
+  storageBucket: "veriscript-app.firebasestorage.app",
+  messagingSenderId: "100481319114",
+  appId: "1:100481319114:web:2457af8f628cc759a2f433",
+  measurementId: "G-VH5D8E1ZV0"
 };
 
 // Initialize Firebase
