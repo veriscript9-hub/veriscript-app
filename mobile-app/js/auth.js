@@ -72,8 +72,54 @@ class AuthManager {
     console.log('✅ User signed out');
   }
 
-  // Register new user
-  async register(email, password, userData) {
+  // Register new user (OPTIMIZED)
+async register(email, password, userData) {
+  try {
+    // Create user account (fast - 2 seconds)
+    const userCredential = await firebase.auth()
+      .createUserWithEmailAndPassword(email, password);
+
+    const user = userCredential.user;
+
+    // Skip email verification for faster registration
+    // user.sendEmailVerification().catch(err => console.log('Email verification skipped'));
+
+    // Create user document in Firestore (async - don't wait!)
+    firebase.firestore()
+      .collection('users')
+      .doc(user.uid)
+      .set({
+        email: email,
+        name: userData.name,
+        phone: userData.phone,
+        role: userData.role || 'doctor',
+        profile: {
+          specialization: userData.specialization || '',
+          licenseNumber: userData.licenseNumber || '',
+          clinic: userData.clinic || '',
+          address: userData.address || '',
+          city: userData.city || '',
+          state: userData.state || ''
+        },
+        plan: 'free',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      })
+      .catch(err => console.error('Firestore error:', err));
+
+    return {
+      success: true,
+      user: user
+    };
+  } catch (error) {
+    console.error('❌ Registration error:', error);
+
+    return {
+      success: false,
+      error: error
+    };
+  }
+}
     try {
       utils.showLoader('Creating account...');
 
