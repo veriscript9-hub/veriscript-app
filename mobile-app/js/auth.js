@@ -83,8 +83,8 @@ class AuthManager {
 
       const user = userCredential.user;
 
-      // Send email verification
-      await user.sendEmailVerification();
+      // Send email verification (commented for faster registration)
+// await user.sendEmailVerification();
 
       // Create user document in Firestore
       await firebase.firestore()
